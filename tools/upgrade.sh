@@ -2,15 +2,15 @@
 # Use colors, but only if connected to a terminal, and that terminal
 # supports them.
 if which tput >/dev/null 2>&1; then
-    ncolors=$(tput colors)
+    ncolors=$(tput Co)
 fi
 if [ -t 1 ] && [ -n "$ncolors" ] && [ "$ncolors" -ge 8 ]; then
-  RED="$(tput setaf 1)"
-  GREEN="$(tput setaf 2)"
-  YELLOW="$(tput setaf 3)"
-  BLUE="$(tput setaf 4)"
-  BOLD="$(tput bold)"
-  NORMAL="$(tput sgr0)"
+  RED="$(tput AF 1)"
+  GREEN="$(tput AF 2)"
+  YELLOW="$(tput AF 3)"
+  BLUE="$(tput AF 4)"
+  BOLD="$(tput md)"
+  NORMAL="$(tput me)"
 else
   RED=""
   GREEN=""
