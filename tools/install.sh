@@ -1,16 +1,25 @@
 main() {
+
+  set -e
+    
+  # Only run on FreeBSD
+  if [ $(uname) != FreeBSD ]; then
+    echo "Error: This should only be run on FreeBSD!"
+    exit 1
+  fi
+    
   # Use colors, but only if connected to a terminal, and that terminal
   # supports them.
   if which tput >/dev/null 2>&1; then
-      ncolors=$(tput colors)
+      ncolors=$(tput Co)
   fi
   if [ -t 1 ] && [ -n "$ncolors" ] && [ "$ncolors" -ge 8 ]; then
-    RED="$(tput setaf 1)"
-    GREEN="$(tput setaf 2)"
-    YELLOW="$(tput setaf 3)"
-    BLUE="$(tput setaf 4)"
-    BOLD="$(tput bold)"
-    NORMAL="$(tput sgr0)"
+    RED="$(tput AF 1)"
+    GREEN="$(tput AF 2)"
+    YELLOW="$(tput AF 3)"
+    BLUE="$(tput AF 4)"
+    BOLD="$(tput md)"
+    NORMAL="$(tput me)"
   else
     RED=""
     GREEN=""
@@ -20,13 +29,13 @@ main() {
     NORMAL=""
   fi
 
-  # Only enable exit-on-error after the non-critical colorization stuff,
-  # which may fail on systems lacking tput or terminfo
-  set -e
-
   if ! command -v zsh >/dev/null 2>&1; then
-    printf "${YELLOW}Zsh is not installed!${NORMAL} Please install zsh first!\n"
-    exit
+    printf "${BLUE}Zsh is not installed!${NORMAL} Installing...\n"
+
+    env sudo pkg install -y zsh || {
+      echo "Error: Failed to install Zsh!"
+      exit 1
+    }
   fi
 
   if [ ! -n "$ZSH" ]; then
@@ -48,22 +57,17 @@ main() {
 
   printf "${BLUE}Cloning Oh My Zsh...${NORMAL}\n"
   command -v git >/dev/null 2>&1 || {
-    echo "Error: git is not installed"
-    exit 1
-  }
-  # The Windows (MSYS) Git is not compatible with normal use on cygwin
-  if [ "$OSTYPE" = cygwin ]; then
-    if git --version | grep msysgit > /dev/null; then
-      echo "Error: Windows/MSYS Git is not supported on Cygwin"
-      echo "Error: Make sure the Cygwin git package is installed and is first on the path"
+    printf "${BLUE}Git is not installed!${NORMAL} Installing...\n"
+    env sudo pkg install -y git || {
+      echo "Error: Failed to install git!"
       exit 1
-    fi
-  fi
-  env git clone --depth=1 https://github.com/robbyrussell/oh-my-zsh.git "$ZSH" || {
+    }
+  }
+  
+  env git clone --depth=1 https://github.com/NoCheroot/oh-my-zsh.git "$ZSH" || {
     printf "Error: git clone of oh-my-zsh repo failed\n"
     exit 1
   }
-
 
   printf "${BLUE}Looking for an existing zsh config...${NORMAL}\n"
   if [ -f ~/.zshrc ] || [ -h ~/.zshrc ]; then
@@ -84,7 +88,7 @@ main() {
     # If this platform provides a "chsh" command (not Cygwin), do it, man!
     if hash chsh >/dev/null 2>&1; then
       printf "${BLUE}Time to change your default shell to zsh!${NORMAL}\n"
-      chsh -s $(grep /zsh$ /etc/shells | tail -1)
+      chsh -s /usr/local/bin/zsh
     # Else, suggest the user do so manually.
     else
       printf "I can't change your shell automatically because this system does not have chsh.\n"
