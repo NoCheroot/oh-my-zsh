@@ -30,12 +30,16 @@ main() {
   fi
 
   if ! command -v zsh >/dev/null 2>&1; then
-    printf "${BLUE}Zsh is not installed!${NORMAL} Installing...\n"
-
-    env sudo pkg install -y zsh || {
-      echo "Error: Failed to install Zsh!"
+    if [ "$AUTOPKG" == "YES" ]; then
+      printf "${BLUE}Zsh is not installed!${NORMAL} Installing...\n"
+      env sudo pkg install -y zsh || {
+        printf "${RED}Error: Failed to install Zsh!${NORMAL}\n"
+        exit 1
+      }
+    else
+      printf "${RED}Error: Zsh is not installed!${NORMAL}\n"
       exit 1
-    }
+    fi
   fi
 
   if [ ! -n "$ZSH" ]; then
@@ -57,15 +61,20 @@ main() {
 
   printf "${BLUE}Cloning Oh My Zsh...${NORMAL}\n"
   command -v git >/dev/null 2>&1 || {
-    printf "${BLUE}Git is not installed!${NORMAL} Installing...\n"
-    env sudo pkg install -y git || {
-      echo "Error: Failed to install git!"
+    if [ "$AUTOPKG" == "YES" ]; then
+      printf "${BLUE}Git is not installed!${NORMAL} Installing...\n"
+      env sudo pkg install -y git || {
+        printf "${RED}Error: Failed to install git!${NORMAL}\n"
+        exit 1
+      }
+    else
+      printf "${RED}Error: Git is not installed!${NORMAL}\n"
       exit 1
-    }
+    fi
   }
   
   env git clone --depth=1 https://github.com/NoCheroot/oh-my-zsh.git "$ZSH" || {
-    printf "Error: git clone of oh-my-zsh repo failed\n"
+    printf "${RED}Error: git clone of oh-my-zsh repo failed${NORMAL}\n"
     exit 1
   }
 
@@ -106,9 +115,7 @@ main() {
   echo ''
   echo ''
   echo 'Please look over the ~/.zshrc file to select plugins, themes, and options.'
-  echo ''
   echo 'p.s. Follow us at https://twitter.com/ohmyzsh.'
-  echo ''
   echo 'p.p.s. Get stickers and t-shirts at https://shop.planetargon.com.'
   echo ''
   printf "${NORMAL}"

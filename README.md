@@ -60,6 +60,12 @@ chsh -s /bin/zsh
 
 Once you open up a new terminal window, it should load zsh with Oh My Zsh's configuration.
 
+### Upgrade
+
+```shell
+upgrade_oh_my_zsh
+```
+
 ### Uninstall
 
 ```shell
